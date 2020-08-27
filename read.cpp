@@ -10,7 +10,7 @@
 #include "TCanvas.h"
 
 using namespace std;
-const Int_t kMax = 10000;
+const int kMax = 10000;
 
 void read_genparticle();
 void read_AK4PFJet();
@@ -28,19 +28,19 @@ void read_genparticle()
     //TFile *f = new TFile("/Users/chenzhenggang/Desktop/local_analysis/Ntuple_1_event.root");
     TTree *mytree = (TTree*)f->Get("Tree");
     TCanvas *c1=new TCanvas("c1","c1",1600,1600);
-    Int_t genparticle_track;
-    Int_t genparticle_charge[kMax];
-    Int_t genparticle_pdgId[kMax];
-    Double32_t genparticle_px[kMax];
-    Double32_t genparticle_py[kMax];
-    Double32_t genparticle_pz[kMax];
-    Double32_t genparticle_pt[kMax];
-    Double32_t genparticle_mass[kMax];
-    Double32_t genparticle_mt[kMax];
-    Double32_t genparticle_phi[kMax];
-    Double32_t genparticle_theta[kMax];
-    Double32_t genparticle_eta[kMax];
-    Double32_t genparticle_rapidity[kMax];
+    int genparticle_track;
+    int genparticle_charge[kMax];
+    int genparticle_pdgId[kMax];
+    double genparticle_px[kMax];
+    double genparticle_py[kMax];
+    double genparticle_pz[kMax];
+    double genparticle_pt[kMax];
+    double genparticle_mass[kMax];
+    double genparticle_mt[kMax];
+    double genparticle_phi[kMax];
+    double genparticle_theta[kMax];
+    double genparticle_eta[kMax];
+    double genparticle_rapidity[kMax];
     
     mytree->SetBranchAddress("genparticle_track",&genparticle_track);
     mytree->SetBranchAddress("genparticle_charge",&genparticle_charge[genparticle_track]);
@@ -70,9 +70,9 @@ void read_genparticle()
     TH1F *hgenparticle_eta = new TH1F("gen_eta","Eta distribution", 61, -30000, 30000 );
     TH1F *hgenparticle_rapidity = new TH1F("gen_rapidity","Rapidity distribution", 41 , -20, 20 );
 
-    Int_t nentries = (Int_t)mytree->GetEntries();
+    int nentries = (int)mytree->GetEntries();
 
-    for( Int_t i = 0 ; i < nentries ; i++)
+    for( int i = 0 ; i < nentries ; i++)
     {
        mytree->GetEntry(i);
        hgenparticle_track->Fill(genparticle_track);
@@ -129,19 +129,19 @@ void read_AK4PFJet()
     TTree *mytree = (TTree*)f->Get("Tree");
     TCanvas *c1=new TCanvas("c1","c1",1600,1600);
     
-    Int_t ak4pfjets_track;
-    Int_t ak4pfjets_charge[kMax];
-    Int_t ak4pfjets_pdgId[kMax];
-    Double32_t ak4pfjets_px[kMax];
-    Double32_t ak4pfjets_py[kMax];
-    Double32_t ak4pfjets_pz[kMax];
-    Double32_t ak4pfjets_pt[kMax];
-    Double32_t ak4pfjets_mass[kMax];
-    Double32_t ak4pfjets_mt[kMax];
-    Double32_t ak4pfjets_phi[kMax];
-    Double32_t ak4pfjets_theta[kMax];
-    Double32_t ak4pfjets_eta[kMax];
-    Double32_t ak4pfjets_rapidity[kMax];
+    int ak4pfjets_track;
+    int ak4pfjets_charge[kMax];
+    int ak4pfjets_pdgId[kMax];
+    double ak4pfjets_px[kMax];
+    double ak4pfjets_py[kMax];
+    double ak4pfjets_pz[kMax];
+    double ak4pfjets_pt[kMax];
+    double ak4pfjets_mass[kMax];
+    double ak4pfjets_mt[kMax];
+    double ak4pfjets_phi[kMax];
+    double ak4pfjets_theta[kMax];
+    double ak4pfjets_eta[kMax];
+    double ak4pfjets_rapidity[kMax];
     
     mytree->SetBranchAddress("ak4pfjets_track",&ak4pfjets_track);
     mytree->SetBranchAddress("ak4pfjets_charge",&ak4pfjets_charge[ak4pfjets_track]);
@@ -171,9 +171,9 @@ void read_AK4PFJet()
     TH1F *hak4pfjets_eta = new TH1F("ak4pfjets_eta","Eta distribution", 201, -6., 6. );
     TH1F *hak4pfjets_rapidity = new TH1F("ak4pfjets_rapidity","Rapidity distribution",101 , -6., 6. );
 
-    Int_t nentries = (Int_t)mytree->GetEntries();
+    int nentries = (int)mytree->GetEntries();
 
-    for( Int_t i = 0 ; i < nentries ; i++)
+    for( int i = 0 ; i < nentries ; i++)
     {
        mytree->GetEntry(i);
        hak4pfjets_track->Fill(ak4pfjets_track);
