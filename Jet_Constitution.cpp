@@ -9,7 +9,7 @@
 #include "TRandom.h"
 #include "TCanvas.h"
 #include "TF1.h"
-
+#include "vector"
 using namespace std;
 const Int_t kMax = 20000;
 
@@ -97,10 +97,8 @@ void Jet_Constitution()
     Int_t ak4pfjets_chargedHadronMultiplicity[kMax];
     Int_t ak4pfjets_chargedMultiplicity[kMax];
     Int_t ak4pfjets_neutralMultiplicity[kMax];
-    Int_t ak4pfjets_HFHadronMultiplicity[kMax];
-    Int_t ak4pfjets_HFEMMultiplicity[kMax];
-    
-
+    std::vector<Int_t> *ak4pfjets_tagging;
+    TBranch *ak4pfjets;
     mytree->SetBranchAddress("ak4pfjets_track", &ak4pfjets_track );
     mytree->SetBranchAddress("ak4pfjets_charge", &ak4pfjets_charge[ak4pfjets_track]);
     mytree->SetBranchAddress("ak4pfjets_pdgId", ak4pfjets_pdgId);
@@ -120,8 +118,7 @@ void Jet_Constitution()
     mytree->SetBranchAddress("ak4pfjets_chargedHadronMultiplicity", &ak4pfjets_chargedHadronMultiplicity[ak4pfjets_track] );
     mytree->SetBranchAddress("ak4pfjets_chargedMultiplicity", &ak4pfjets_chargedMultiplicity[ak4pfjets_track] );
     mytree->SetBranchAddress("ak4pfjets_neutralMultiplicity", &ak4pfjets_neutralMultiplicity[ak4pfjets_track] );
-    mytree->SetBranchAddress("ak4pfjets_HFHadronMultiplicity", &ak4pfjets_HFHadronMultiplicity[ak4pfjets_track] );
-    mytree->SetBranchAddress("ak4pfjets_HFEMMultiplicity", &ak4pfjets_HFEMMultiplicity[ak4pfjets_track] );
+    mytree->SetBranchAddress("ak4pfjets_tagging", &ak4pfjets_tagging);
 
     //Branch for HGCal 
     
@@ -133,8 +130,7 @@ void Jet_Constitution()
     Double_t hgcalclst_E[kMax];
     Double_t hgcalclst_eta[kMax];
     Double_t hgcalclst_phi[kMax];
-    std::vector<unsigned int> *hgcalclst_layer;
-    TBranch *branch = 0;
+    Int_t hgcalclst_layer[kMax];
     mytree->SetBranchAddress("hgcalclst_track", &hgcalclst_track ) ;
     mytree->SetBranchAddress("hgcalclst_x",hgcalclst_x) ;
     mytree->SetBranchAddress("hgcalclst_y",hgcalclst_y) ;
@@ -142,27 +138,65 @@ void Jet_Constitution()
     mytree->SetBranchAddress("hgcalclst_E",hgcalclst_E) ;
     mytree->SetBranchAddress("hgcalclst_eta",hgcalclst_eta) ;
     mytree->SetBranchAddress("hgcalclst_phi",hgcalclst_phi) ;
-    mytree->SetBranchAddress("hgcalclst_layer",&hgcalclst_layer,&branch);
-    //Branch for PFCandidate
-    const int hgcallayer_size = 35;    
-//For Quark
-    TH1D *Quark_nConstituents = new TH1D("Number of Constituents for q"," Quark nConstituents " , 30 , 0, 150  ) ;
-    TH1D *Quark_chargedHadronMultiplicity = new TH1D("Charged Hadron Multiplicity for Quark","Charged Hadron Multiplicity for Quark", 16 , 0, 80 ) ;
-    TH1D *Quark_neutralHadronMultiplicity = new TH1D("Neutral Hadron Multiplicity for Quark","Neutral Hadron Multiplicity for Quark", 16 , 0, 80 ) ;
-    TH1D *Quark_neutralMultiplicity = new TH1D("Neutral Multiplicity for Quark","Neutral Multiplicity for Quark", 16 , 0, 80 ) ;
-    TH1D *Quark_chargedMultiplicity = new TH1D("Charged Multiplicity for Quark","Charged Multiplicity for Quark", 16 , 0, 80 ) ;
-    TH1D *Quark_HFHadronMultiplicity = new TH1D("HFHadron Multiplicity for Quark","HFHadron Multiplicity for Quark", 16 , 0, 80 ) ;
-    TH1D *Quark_HFEMMultiplicity = new TH1D("HFEM Multiplicity for Quark","HFEM Multiplicity for Quark", 16 , 0, 80 ) ;
-//For Gluon    
-    TH1D *Gluon_nConstituents = new TH1D("Number of Constituents for g"," Gluon nConstituents " , 30 , 0, 150 ) ;
-    TH1D *Gluon_chargedHadronMultiplicity = new TH1D("Charged Hadron Multiplicity for Gluon","Charged Hadron Multiplicity for Gluon", 16 , 0, 80 ) ;
-    TH1D *Gluon_neutralHadronMultiplicity = new TH1D("Neutral Hadron Multiplicity for Gluon","Neutral Hadron Multiplicity for Gluon", 16 , 0, 80 ) ;
-    TH1D *Gluon_neutralMultiplicity = new TH1D("Neutral Multiplicity for Gluon","Neutral Multiplicity for Gluon", 16 , 0, 80 ) ;
-    TH1D *Gluon_chargedMultiplicity = new TH1D("Charged Multiplicity for Gluon","Charged Multiplicity for Gluon", 16 , 0, 80 ) ;
-    TH1D *Gluon_HFHadronMultiplicity = new TH1D("HFHadron Multiplicity for Gluon","HFHadron Multiplicity for Gluon", 16 , 0, 80 ) ;
-    TH1D *Gluon_HFEMMultiplicity = new TH1D("HFEM Multiplicity for Gluon","HFEM Multiplicity for Gluon", 16 , 0, 80 ) ;
+    mytree->SetBranchAddress("hgcalclst_layer",hgcalclst_layer);
 
-    /*Setting of objects*/
+    //Branch for PFCandidate
+    std::vector<Int_t> *PFConstituents_charge;
+    std::vector<Int_t> *PFConstituents_pdgId;
+    std::vector<Double_t> *PFConstituents_p;
+    std::vector<Double_t> *PFConstituents_px;
+    std::vector<Double_t> *PFConstituents_py;
+    std::vector<Double_t> *PFConstituents_pz;
+    std::vector<Double_t> *PFConstituents_pt;
+    std::vector<Double_t> *PFConstituents_E;
+    std::vector<Double_t> *PFConstituents_Et;
+    std::vector<Double_t> *PFConstituents_mass;
+    std::vector<Double_t> *PFConstituents_mt;
+    std::vector<Double_t> *PFConstituents_phi;
+    std::vector<Double_t> *PFConstituents_theta;
+    std::vector<Double_t> *PFConstituents_eta;
+    std::vector<Double_t> *PFConstituents_hcalEnergy;
+    std::vector<Double_t> *PFConstituents_ecalEnergy;
+    std::vector<Double_t> *PFConstituents_rapidity;
+
+    TBranch *PFConstituents;
+    //mytree->SetBranchAddress("PFConstituents_charge", &PFConstituents_charge,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_charge", &PFConstituents_charge,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_pdgId", &PFConstituents_pdgId,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_p", &PFConstituents_p,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_px", &PFConstituents_px,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_py", &PFConstituents_py,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_pz", &PFConstituents_pz,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_pt", &PFConstituents_pt,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_E", &PFConstituents_E,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_Et", &PFConstituents_Et,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_mass", &PFConstituents_mass,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_mt", &PFConstituents_mt,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_phi", &PFConstituents_phi,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_theta", &PFConstituents_theta,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_eta", &PFConstituents_eta,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_rapidity", &PFConstituents_rapidity,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_hcalEnergy", &PFConstituents_hcalEnergy,&PFConstituents ) ;
+    mytree->SetBranchAddress("PFConstituents_ecalEnergy", &PFConstituents_ecalEnergy,&PFConstituents ) ;
+
+    const int hgcallayer_size = 35;    
+    const int MAX_NCONSTITUENTS=200;
+//For Quark
+    TH1D *Quark_nConstituents = new TH1D("Number of Constituents for q"," Quark nConstituents " , 40 , 0, MAX_NCONSTITUENTS  ) ;
+//    TH1D *Quark_chargedHadronMultiplicity = new TH1D("Charged Hadron Multiplicity for Quark","Charged Hadron Multiplicity for Quark", 16 , 0, 80 ) ;
+//    TH1D *Quark_neutralHadronMultiplicity = new TH1D("Neutral Hadron Multiplicity for Quark","Neutral Hadron Multiplicity for Quark", 16 , 0, 80 ) ;
+    TH1D *Quark_neutralMultiplicity = new TH1D("Neutral Multiplicity for Quark","Neutral Multiplicity for Quark", 40 , 0, MAX_NCONSTITUENTS ) ;
+    TH1D *Quark_chargedMultiplicity = new TH1D("Charged Multiplicity for Quark","Charged Multiplicity for Quark", 40 , 0, MAX_NCONSTITUENTS ) ;
+
+//For Gluon    
+    TH1D *Gluon_nConstituents = new TH1D("Number of Constituents for g"," Gluon nConstituents " , 40 , 0, MAX_NCONSTITUENTS ) ;
+//    TH1D *Gluon_chargedHadronMultiplicity = new TH1D("Charged Hadron Multiplicity for Gluon","Charged Hadron Multiplicity for Gluon", 16 , 0, 80 ) ;
+//    TH1D *Gluon_neutralHadronMultiplicity = new TH1D("Neutral Hadron Multiplicity for Gluon","Neutral Hadron Multiplicity for Gluon", 16 , 0, 80 ) ;
+    TH1D *Gluon_neutralMultiplicity = new TH1D("Neutral Multiplicity for Gluon","Neutral Multiplicity for Gluon", 40 , 0, MAX_NCONSTITUENTS ) ;
+    TH1D *Gluon_chargedMultiplicity = new TH1D("Charged Multiplicity for Gluon","Charged Multiplicity for Gluon", 40 , 0, MAX_NCONSTITUENTS ) ;
+
+/*Setting of objects*/
+
 //For Quark   
     Quark_nConstituents->GetXaxis()->SetTitle("nConstituents");
     Quark_nConstituents->GetYaxis()->SetTitle("Events");
@@ -174,7 +208,7 @@ void Jet_Constitution()
     Quark_nConstituents->GetYaxis()->SetLabelSize(0.4*font_size);
     Quark_nConstituents->SetFillColor(kRed);
     Quark_nConstituents->SetLineColor(kBlack);
-
+/*
     Quark_neutralHadronMultiplicity->GetXaxis()->SetTitle("Neutral Hadron Multiplicity");
     Quark_neutralHadronMultiplicity->GetYaxis()->SetTitle("Events");
     Quark_neutralHadronMultiplicity->GetXaxis()->SetTitleSize(font_size);
@@ -196,7 +230,7 @@ void Jet_Constitution()
     Quark_chargedHadronMultiplicity->GetYaxis()->SetLabelSize(0.4*font_size);
     Quark_chargedHadronMultiplicity->SetFillColor(kRed);
     Quark_chargedHadronMultiplicity->SetLineColor(kBlack);
-
+*/
     Quark_chargedMultiplicity->GetXaxis()->SetTitle("Charged Multiplicity");
     Quark_chargedMultiplicity->GetYaxis()->SetTitle("Events");
     Quark_chargedMultiplicity->GetXaxis()->SetTitleSize(font_size);
@@ -219,28 +253,6 @@ void Jet_Constitution()
     Quark_neutralMultiplicity->SetFillColor(kRed);
     Quark_neutralMultiplicity->SetLineColor(kBlack);
 
-    Quark_HFHadronMultiplicity->GetXaxis()->SetTitle("HFHadron Multiplicity");
-    Quark_HFHadronMultiplicity->GetYaxis()->SetTitle("Events");
-    Quark_HFHadronMultiplicity->GetXaxis()->SetTitleSize(font_size);
-    Quark_HFHadronMultiplicity->GetYaxis()->SetTitleSize(font_size); 
-    Quark_HFHadronMultiplicity->GetXaxis()->SetTitleOffset(font_offset);
-    Quark_HFHadronMultiplicity->GetYaxis()->SetTitleOffset(font_offset);
-    Quark_HFHadronMultiplicity->GetXaxis()->SetLabelSize(0.4*font_size);
-    Quark_HFHadronMultiplicity->GetYaxis()->SetLabelSize(0.4*font_size);
-    Quark_HFHadronMultiplicity->SetFillColor(kRed);
-    Quark_HFHadronMultiplicity->SetLineColor(kBlack);
-    
-    Quark_HFEMMultiplicity->GetXaxis()->SetTitle("HFEM Multiplicity");
-    Quark_HFEMMultiplicity->GetYaxis()->SetTitle("Events");
-    Quark_HFEMMultiplicity->GetXaxis()->SetTitleSize(font_size);
-    Quark_HFEMMultiplicity->GetYaxis()->SetTitleSize(font_size); 
-    Quark_HFEMMultiplicity->GetXaxis()->SetTitleOffset(font_offset);
-    Quark_HFEMMultiplicity->GetYaxis()->SetTitleOffset(font_offset);
-    Quark_HFEMMultiplicity->GetXaxis()->SetLabelSize(0.4*font_size);
-    Quark_HFEMMultiplicity->GetYaxis()->SetLabelSize(0.4*font_size);
-    Quark_HFEMMultiplicity->SetFillColor(kRed);
-    Quark_HFEMMultiplicity->SetLineColor(kBlack);
-
 
 //For Gluon
 
@@ -254,7 +266,7 @@ void Jet_Constitution()
     Gluon_nConstituents->GetYaxis()->SetLabelSize(0.4*font_size);
     Gluon_nConstituents->SetFillColor(kGreen);
     Gluon_nConstituents->SetLineColor(kBlack);
-
+/*
     Gluon_neutralHadronMultiplicity->GetXaxis()->SetTitle("Neutral Hadron Multiplicity");
     Gluon_neutralHadronMultiplicity->GetYaxis()->SetTitle("Events");
     Gluon_neutralHadronMultiplicity->GetXaxis()->SetTitleSize(font_size);
@@ -276,7 +288,7 @@ void Jet_Constitution()
     Gluon_chargedHadronMultiplicity->GetYaxis()->SetLabelSize(0.4*font_size);
     Gluon_chargedHadronMultiplicity->SetFillColor(kGreen); 
     Gluon_chargedHadronMultiplicity->SetLineColor(kBlack);
-
+*/
     Gluon_chargedMultiplicity->GetXaxis()->SetTitle("Charged Multiplicity");
     Gluon_chargedMultiplicity->GetYaxis()->SetTitle("Events");
     Gluon_chargedMultiplicity->GetXaxis()->SetTitleSize(font_size);
@@ -299,53 +311,31 @@ void Jet_Constitution()
     Gluon_neutralMultiplicity->SetFillColor(kGreen);
     Gluon_neutralMultiplicity->SetLineColor(kBlack);
 
-    Gluon_HFHadronMultiplicity->GetXaxis()->SetTitle("HFHadron Multiplicity");
-    Gluon_HFHadronMultiplicity->GetYaxis()->SetTitle("Events");
-    Gluon_HFHadronMultiplicity->GetXaxis()->SetTitleSize(font_size);
-    Gluon_HFHadronMultiplicity->GetYaxis()->SetTitleSize(font_size); 
-    Gluon_HFHadronMultiplicity->GetXaxis()->SetTitleOffset(font_offset);
-    Gluon_HFHadronMultiplicity->GetYaxis()->SetTitleOffset(font_offset);
-    Gluon_HFHadronMultiplicity->GetXaxis()->SetLabelSize(0.4*font_size);
-    Gluon_HFHadronMultiplicity->GetYaxis()->SetLabelSize(0.4*font_size);
-    Gluon_HFHadronMultiplicity->SetFillColor(kGreen);
-    Gluon_HFHadronMultiplicity->SetLineColor(kBlack);
-    
-    Gluon_HFEMMultiplicity->GetXaxis()->SetTitle("HFEM Multiplicity");
-    Gluon_HFEMMultiplicity->GetYaxis()->SetTitle("Events");
-    Gluon_HFEMMultiplicity->GetXaxis()->SetTitleSize(font_size);
-    Gluon_HFEMMultiplicity->GetYaxis()->SetTitleSize(font_size); 
-    Gluon_HFEMMultiplicity->GetXaxis()->SetTitleOffset(font_offset);
-    Gluon_HFEMMultiplicity->GetYaxis()->SetTitleOffset(font_offset);
-    Gluon_HFEMMultiplicity->GetXaxis()->SetLabelSize(0.4*font_size);
-    Gluon_HFEMMultiplicity->GetYaxis()->SetLabelSize(0.4*font_size);
-    Gluon_HFEMMultiplicity->SetFillColor(kGreen);
-    Gluon_HFEMMultiplicity->SetLineColor(kBlack);
-    
     /*Setting of Histogram*/
-    int energy_accum_q[hgcallayer_size]={0};
-    int energy_accum_g[hgcallayer_size]={0};
-
+    
+    /*Setting for Selection*/
     Int_t nentries = (Int_t)mytree->GetEntries();
+    
     for( Int_t ev = 0 ; ev < nentries ; ev++)
     {
-       mytree->GetEntry(ev);
+      mytree->GetEntry(ev);
       for(int i = 0; i < genparticle_track  ; i ++)
       {
           if(TMath::Abs(genparticle_pdgId[ i ])< 4 && TMath::Abs(genparticle_pdgId[ i ]) > 0 && genparticle_status[ i ]  ==23  )
        {
            Double_t dR[ ak4pfjets_track ] ;
            Double_t minimum_DeltaR;
-           int min_pos ;
-           bool flag = false ;
+           int min_pos=0;
+           bool flag=false;
            for(Int_t j = 0; j < ak4pfjets_track ; j ++)
                   {
                       dR[ j ] = TMath::Sqrt(TMath::Power((ak4pfjets_eta[ j ] - genparticle_eta[ i ]),2) + TMath::Power((ak4pfjets_phi[ j ] - genparticle_phi[ i ]), 2 ) );
-                    
                   }
            
            Find_min( dR, ak4pfjets_track , 0 , minimum_DeltaR , min_pos , flag );
            if( minimum_DeltaR < 0.1 \
-                   && ak4pfjets_pt[  min_pos ] > genparticle_pt[ min_pos ] * constraint_coef_pt )
+                   && ak4pfjets_pt[  min_pos ] > genparticle_pt[ min_pos ] * constraint_coef_pt\
+                   && ak4pfjets_pt[  min_pos ] )
            {
                Double_t dR_; 
                for(Int_t k = 0 ; k < hgcalclst_track ; k ++ )
@@ -353,34 +343,63 @@ void Jet_Constitution()
                     dR_ = TMath::Sqrt(TMath::Power(hgcalclst_eta[ k ] - ak4pfjets_eta[ min_pos ] , 2 ) + TMath::Power( hgcalclst_phi[ k ] - ak4pfjets_phi[ min_pos ] , 2 ) );
                     if( dR_ < R_cut )
                     {
-                        int layer =hgcalclst_layer->at(k);
-                        energy_accum_q[layer] +=hgcalclst_E[k] ;
                     }
                 }
-         /*
-                Quark_nConstituents->Fill(ak4pfjets_nConstituents[min_pos]);
-                Quark_chargedHadronMultiplicity->Fill(ak4pfjets_chargedHadronMultiplicity[min_pos]);
-                Quark_neutralHadronMultiplicity->Fill(ak4pfjets_neutralHadronMultiplicity[min_pos]);
-                Quark_neutralMultiplicity->Fill(ak4pfjets_neutralMultiplicity[min_pos]);
-                Quark_chargedMultiplicity->Fill(ak4pfjets_chargedMultiplicity[min_pos]);
-                Quark_HFHadronMultiplicity->Fill(ak4pfjets_HFHadronMultiplicity[min_pos]);
-                Quark_HFEMMultiplicity->Fill(ak4pfjets_HFEMMultiplicity[min_pos]);
-          */
+               int charge_ctr=0; 
+               int neutral_ctr=0;
+               if(min_pos >0 )
+                {
+                    Int_t mindex = ak4pfjets_tagging->at(min_pos-1);
+                    Int_t mindex_end = ak4pfjets_tagging->at(min_pos);
+                    for(;mindex < mindex_end;mindex++)
+                    {
+                        if(PFConstituents_charge->at(mindex) !=0)
+                        {
+                            charge_ctr+=1;
+                        }
+                        else if(PFConstituents_charge->at(mindex) ==0 \
+                                && PFConstituents_pt->at(mindex) >1 )
+                        {
+                            neutral_ctr+=1;
+                        }
+                    }
+                }
+               else
+               {
+                   for(int mindex=0;mindex<ak4pfjets_tagging->at(min_pos);mindex++)
+                   {
+                        if(PFConstituents_charge->at(mindex) !=0)
+                        {
+                            charge_ctr+=1;
+                        }
+                        else if(PFConstituents_charge->at(mindex) ==0 \
+                                && PFConstituents_pt->at(mindex) >1 
+                                )
+                        {
+                            neutral_ctr+=1;
+                        }
+                   }
+               }
+                Quark_nConstituents->Fill(neutral_ctr+charge_ctr);
+                Quark_neutralMultiplicity->Fill(neutral_ctr);
+                Quark_chargedMultiplicity->Fill(charge_ctr);
                 }
        }
        else if(genparticle_pdgId[ i ] == 21 && genparticle_status[ i ] == 23 )
        {
            Double_t dR[ ak4pfjets_track ] ;
            Double_t minimum_DeltaR ;
-           bool flag = false ; 
-           int min_pos ;
+           int min_pos=0;
+           bool flag=false;
+
            for(Int_t j = 0; j < ak4pfjets_track ; j ++)
                   {
                       dR[ j ] = TMath::Sqrt(TMath::Power((ak4pfjets_eta[ j ] - genparticle_eta[ i ]),2) + TMath::Power((ak4pfjets_phi[ j ] - genparticle_phi[ i ]), 2 ) );
                   }
            Find_min( dR, ak4pfjets_track , 0 , minimum_DeltaR , min_pos ,flag);
            if( minimum_DeltaR < 0.1   \
-                   && ak4pfjets_pt[  min_pos ] > genparticle_pt[ min_pos ] * constraint_coef_pt)
+                   && ak4pfjets_pt[  min_pos ] > genparticle_pt[ min_pos ] * constraint_coef_pt\
+                   && ak4pfjets_pt[  min_pos ] )
            {
                Double_t dR_ ;
                for(Int_t k = 0 ; k < hgcalclst_track ; k ++)
@@ -388,113 +407,88 @@ void Jet_Constitution()
                    dR_ = TMath::Sqrt(TMath::Power(hgcalclst_eta[ k ] - ak4pfjets_eta[ min_pos ] , 2 ) + TMath::Power( hgcalclst_phi[ k ] - ak4pfjets_phi[ min_pos ] , 2 ) );
                    if( dR_ < R_cut)
                    {
-                       int layer =hgcalclst_layer->at(k);  
-                       energy_accum_g[layer] +=hgcalclst_E[k] ;
                    }
                }
-      /*
-                   Gluon_chargedHadronMultiplicity->Fill(ak4pfjets_chargedHadronMultiplicity[min_pos]);
-                   Gluon_neutralHadronMultiplicity->Fill(ak4pfjets_neutralHadronMultiplicity[min_pos]);
-                   Gluon_nConstituents->Fill(ak4pfjets_nConstituents[min_pos]);
-                   Gluon_neutralMultiplicity->Fill(ak4pfjets_neutralMultiplicity[min_pos]);
-                   Gluon_chargedMultiplicity->Fill(ak4pfjets_chargedMultiplicity[min_pos]);
-                   Gluon_HFHadronMultiplicity->Fill(ak4pfjets_HFHadronMultiplicity[min_pos]);
-                   Gluon_HFEMMultiplicity->Fill(ak4pfjets_HFEMMultiplicity[min_pos]);
-       */
+               int charge_ctr=0; 
+               int neutral_ctr=0;
+               if(min_pos >0 )
+                {
+                    printf("%d\n",min_pos);
+                    Int_t mindex = ak4pfjets_tagging->at(min_pos-1);
+                    Int_t mindex_end = ak4pfjets_tagging->at(min_pos);
+                    for(;mindex < mindex_end;mindex++)
+                    {
+                        if(PFConstituents_charge->at(mindex) !=0)
+                        {
+                            charge_ctr+=1;
+                        }
+                        else if(PFConstituents_charge->at(mindex) ==0 \
+                                && PFConstituents_pt->at(mindex) >1 )
+                        {
+                            neutral_ctr+=1;
+                        }
+                    }
+                }
+               else
+               {
+                   for(int mindex=0;mindex<ak4pfjets_tagging->at(min_pos);mindex++)
+                   {
+                        if(PFConstituents_charge->at(mindex) !=0)
+                        {
+                            charge_ctr+=1;
+                        }
+                        else if(PFConstituents_charge->at(mindex) ==0 \
+                                && PFConstituents_pt->at(mindex) >1 )
+                        {
+                            neutral_ctr+=1;
+                        }
                    }
+               }
+                Gluon_nConstituents->Fill(neutral_ctr+charge_ctr);
+                Gluon_neutralMultiplicity->Fill(neutral_ctr);
+                Gluon_chargedMultiplicity->Fill(charge_ctr);
+            }
        }
       }
-   }
-    /*
+    }
     c1->cd();
     Quark_nConstituents->Draw();
     c1->SaveAs("nConstituents_quark.pdf");
     c1->Clear();
+/*
     Quark_chargedHadronMultiplicity->Draw();
     c1->SaveAs("Quark_chargedHadronMultiplicity.pdf");
     c1->Clear();
     Quark_neutralHadronMultiplicity->Draw();
     c1->SaveAs("Quark_neutralHadronMultiplicity.pdf");
     c1->Clear();
+*/
     Quark_neutralMultiplicity->Draw();
     c1->SaveAs("Quark_neutralMultiplicity.pdf");
     c1->Clear();
     Quark_chargedMultiplicity->Draw();
     c1->SaveAs("Quark_chargedMultiplicity.pdf");
     c1->Clear();
-    Quark_HFHadronMultiplicity->Draw();
-    c1->SaveAs("Quark_HFHadronMultiplicity.pdf");
-    c1->Clear();
-    Quark_HFEMMultiplicity->Draw();
-    c1->SaveAs("Quark_HFEMMultiplicity.pdf");
-    c1->Clear();
     
     c2->cd();
     Gluon_nConstituents->Draw();
     c2->SaveAs("nConstituents_gluon.pdf");
     c2->Clear();
+/*
     Gluon_chargedHadronMultiplicity->Draw();
     c2->SaveAs("Gluon_chargedHadronMultiplicity.pdf");
     c2->Clear();
     Gluon_neutralHadronMultiplicity->Draw();
     c2->SaveAs("Gluon_neutralHadronMultiplicity.pdf");
     c2->Clear();
+*/
     Gluon_neutralMultiplicity->Draw();
     c2->SaveAs("Gluon_neutralMultiplicity.pdf");
     c2->Clear();
     Gluon_chargedMultiplicity->Draw();
     c2->SaveAs("Gluon_chargedMultiplicity.pdf");
     c2->Clear();
-    Gluon_HFHadronMultiplicity->Draw();
-    c2->SaveAs("Gluon_HFHadronMultiplicity.pdf");
-    c2->Clear();
-    Gluon_HFEMMultiplicity->Draw();
-    c2->SaveAs("Gluon_HFEMMultiplicity.pdf");
-    c2->Clear();
-    */
-    c1->cd();
-    int x_i_q[hgcallayer_size];
-    for(int i = 0 ; i< hgcallayer_size;i++)
-    {
-        x_i_q[i] = i;
-    }
-    TGraph *Quark_EnergyDistribution = new TGraph(hgcallayer_size,x_i_q,energy_accum_q);
-    Quark_EnergyDistribution->GetXaxis()->SetTitle("HGCal Layer");
-    Quark_EnergyDistribution->GetYaxis()->SetTitle("Energy(GeV)");
-    Quark_EnergyDistribution->GetXaxis()->SetTitleSize(1.3*font_size);
-    Quark_EnergyDistribution->GetYaxis()->SetTitleSize(1.3*font_size); 
-    Quark_EnergyDistribution->GetXaxis()->SetTitleOffset(1.5*font_offset);
-    Quark_EnergyDistribution->GetYaxis()->SetTitleOffset(1.5*font_offset);
-    Quark_EnergyDistribution->GetXaxis()->SetLabelSize(0.4*font_size);
-    Quark_EnergyDistribution->GetYaxis()->SetLabelSize(0.4*font_size);
-    Quark_EnergyDistribution->SetFillColor(kYellow);
-    Quark_EnergyDistribution->SetLineColor(kRed);
-
-    Quark_EnergyDistribution->Draw("AC");
-    c1->SaveAs("Quark_EnergyDistribution.pdf");
-    c1->Clear();
     
-    c2->cd();
-    int x_i_g[hgcallayer_size];
-    for(int i = 0 ; i< hgcallayer_size ;i++)
-    {
-        x_i_g[i] = i;
-    }
-    TGraph *Gluon_EnergyDistribution = new TGraph(hgcallayer_size,x_i_g,energy_accum_g);
-    Gluon_EnergyDistribution->GetXaxis()->SetTitle("HGCal Layer");
-    Gluon_EnergyDistribution->GetYaxis()->SetTitle("Energy(GeV)");
-    Gluon_EnergyDistribution->GetXaxis()->SetTitleSize(1.3*font_size);
-    Gluon_EnergyDistribution->GetYaxis()->SetTitleSize(1.3*font_size); 
-    Gluon_EnergyDistribution->GetXaxis()->SetTitleOffset(font_offset*1.5);
-    Gluon_EnergyDistribution->GetYaxis()->SetTitleOffset(font_offset*1.5);
-    Gluon_EnergyDistribution->GetXaxis()->SetLabelSize(0.4*font_size);
-    Gluon_EnergyDistribution->GetYaxis()->SetLabelSize(0.4*font_size);
-    Gluon_EnergyDistribution->SetFillColor(kYellow);
-    Gluon_EnergyDistribution->SetLineColor(kGreen);
-   
-    Gluon_EnergyDistribution->Draw("AC");
-    c2->SaveAs("Gluon_EnergyDistribution.pdf");
-    c2->Clear();
     c1->Close();
     c2->Close();
 }
