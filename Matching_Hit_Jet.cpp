@@ -257,7 +257,6 @@ void Matching_Hit_Jet()
                        Gluon_HGCalhits->Fill( hgcalclst_phi[ k ] , hgcalclst_eta[ k ] );
                        Int_t bin = Gluon_HGCalhits->FindBin(hgcalclst_phi[k],hgcalclst_eta[k]);
                        Gluon_HGCalhits->SetBinContent(bin,hgcalclst_E[k]);
-//                       HGCal_ZX_profile_g->Fill( hgcalclst_z[ k ] , hgcalclst_x[ k ]);  
                    }
                }
                c2->cd();
