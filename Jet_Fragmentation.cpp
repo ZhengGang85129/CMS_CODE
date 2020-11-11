@@ -186,7 +186,7 @@ void Jet_Fragmentation()
     TH1D *Quark_width = new TH1D("Quark Fragmentation","Fragmentation function for Quark" , 80 , 0, max_sigma ) ;
 
 //For Gluon    
-    TH1D *Gluon_width = new TH1D("Gluon Fragmentation","Fragmentation function for Quark" , 80 , 0, max_sigma) ;
+    TH1D *Gluon_width = new TH1D("Gluon Fragmentation","Fragmentation function for Gluon" , 80 , 0, max_sigma) ;
 
 /*Setting of objects*/
 

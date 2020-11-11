@@ -30,7 +30,7 @@ const float Top_Margin = .1;
 
 const float marker_size = .8;
 void Find_min(Double_t [] , Int_t , Int_t , Double_t & , int & ,bool &);
-void Jet_Shape()
+void Jet_Width()
 {
     gROOT->Reset();
     TFile *f = new TFile("/Users/chenzhenggang/Desktop/local_analysis/Ntuple.root");
@@ -158,11 +158,11 @@ void Jet_Shape()
     const int hgcallayer_size = 35;    
     const int MAX_NCONSTITUENTS=200;
 //For Quark
-    const double max_sigma = 0.2;
-    TH1D *Quark_width = new TH1D("Quark width","Average width for Quark" , 80 , 0, max_sigma ) ;
+    const double max_sigma = 0.4;
+    TH1D *Quark_width = new TH1D("Quark width","Average width for Quark" , 30 , 0, max_sigma ) ;
 
 //For Gluon    
-    TH1D *Gluon_width = new TH1D("Gluon width","Average width for Gluon" , 80 , 0, max_sigma) ;
+    TH1D *Gluon_width = new TH1D("Gluon width","Average width for Gluon" , 30 , 0, max_sigma) ;
 
 /*Setting of objects*/
 

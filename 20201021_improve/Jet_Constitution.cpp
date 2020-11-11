@@ -159,15 +159,15 @@ void Jet_Constitution()
     mytree->SetBranchAddress("PFConstituents_ecalEnergy", &PFConstituents_ecalEnergy,&PFConstituents ) ;
 
     const int hgcallayer_size = 35;    
-    const int MAX_NCONSTITUENTS=200;
+    const int MAX_NCONSTITUENTS=100;
 //For Quark
-    TH1D *Quark_nConstituents = new TH1D("Number of Constituents for q"," Quark nConstituents " , 40 , 0, MAX_NCONSTITUENTS  ) ;
-    TH1D *Quark_neutralMultiplicity = new TH1D("Neutral Multiplicity for Quark","Neutral Multiplicity for Quark", 40 , 0, MAX_NCONSTITUENTS ) ;
-    TH1D *Quark_chargedMultiplicity = new TH1D("Charged Multiplicity for Quark","Charged Multiplicity for Quark", 40 , 0, MAX_NCONSTITUENTS ) ;
+    TH1D *Quark_nConstituents = new TH1D("Number of Constituents for q"," Quark nConstituents " , 20 , 0, MAX_NCONSTITUENTS  ) ;
+    TH1D *Quark_neutralMultiplicity = new TH1D("Neutral Multiplicity for Quark","Neutral Multiplicity for Quark", 20 , 0, MAX_NCONSTITUENTS ) ;
+    TH1D *Quark_chargedMultiplicity = new TH1D("Charged Multiplicity for Quark","Charged Multiplicity for Quark", 20 , 0, MAX_NCONSTITUENTS ) ;
 //For Gluon    
-    TH1D *Gluon_nConstituents = new TH1D("Number of Constituents for g"," Gluon nConstituents " , 40 , 0, MAX_NCONSTITUENTS ) ;
-    TH1D *Gluon_neutralMultiplicity = new TH1D("Neutral Multiplicity for Gluon","Neutral Multiplicity for Gluon", 40 , 0, MAX_NCONSTITUENTS ) ;
-    TH1D *Gluon_chargedMultiplicity = new TH1D("Charged Multiplicity for Gluon","Charged Multiplicity for Gluon", 40 , 0, MAX_NCONSTITUENTS ) ;
+    TH1D *Gluon_nConstituents = new TH1D("Number of Constituents for g"," Gluon nConstituents " , 20 , 0, MAX_NCONSTITUENTS ) ;
+    TH1D *Gluon_neutralMultiplicity = new TH1D("Neutral Multiplicity for Gluon","Neutral Multiplicity for Gluon", 20 , 0, MAX_NCONSTITUENTS ) ;
+    TH1D *Gluon_chargedMultiplicity = new TH1D("Charged Multiplicity for Gluon","Charged Multiplicity for Gluon", 20 , 0, MAX_NCONSTITUENTS ) ;
 //For Quark   
     Quark_nConstituents->GetXaxis()->SetTitle("nConstituents");
     Quark_nConstituents->GetYaxis()->SetTitle("Events");

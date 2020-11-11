@@ -161,7 +161,7 @@ void Jet_Fragmentation()
     const int hgcallayer_size = 35;    
     const int MAX_NCONSTITUENTS=200;
 //For Quark
-    const double max_sigma = .5;
+    const double max_sigma = 1.;
     TH1D *Quark_width = new TH1D("Quark Fragmentation","Fragmentation function for Quark" , 40 , 0, max_sigma ) ;
 
 //For Gluon    
@@ -170,7 +170,7 @@ void Jet_Fragmentation()
 /*Setting of objects*/
 
 //For Quark   
-    Quark_width->GetXaxis()->SetTitle("#sigma");
+    Quark_width->GetXaxis()->SetTitle("Fragmentation Function");
     Quark_width->GetYaxis()->SetTitle("Events");
     Quark_width->GetXaxis()->SetTitleSize(font_size);
     Quark_width->GetYaxis()->SetTitleSize(font_size); 
@@ -182,7 +182,7 @@ void Jet_Fragmentation()
     Quark_width->SetLineColor(kBlack);
 
 //For Gluon
-    Gluon_width->GetXaxis()->SetTitle("#sigma");
+    Gluon_width->GetXaxis()->SetTitle("Fragmentation Function");
     Gluon_width->GetYaxis()->SetTitle("Events");
     Gluon_width->GetXaxis()->SetTitleSize(font_size);
     Gluon_width->GetYaxis()->SetTitleSize(font_size); 

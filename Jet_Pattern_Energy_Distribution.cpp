@@ -33,11 +33,11 @@ const float Bottom_Margin = 0.12;
 const float Top_Margin = 0.1;
 
 const float marker_size = 0.8;
-const int hgcallayer_max=28;
+const int hgcallayer_max=50;
 void Find_min(Double_t [] , Int_t , Int_t , Double_t & , int & ,bool &);
 void Normalization(Double_t [] , const Int_t);
 
-void Energy_Distribution()
+void Jet_Pattern_Energy_Distribution()
 {
     delete gROOT->FindObject("Radiance_31");
     TSeqCollection* canvases = gROOT->GetListOfCanvases();
