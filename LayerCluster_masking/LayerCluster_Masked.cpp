@@ -37,8 +37,13 @@ const float marker_size = 0.8;
 const int hgcallayer_max=50;
 void Find_min(Double_t [] , Int_t , Int_t , Double_t & , int & ,bool &);
 void Normalization(Double_t [] , const Int_t);
+const int Gluon_ID = 21;
+const int Quark_lower_ID=1;
+const int Quark_upper_ID=3;
+const int Electron_ID=11;
+const int Photon_ID=22;
 
-void Jet_Pattern_Energy_Distribution_Upgrade()
+void LayerCluster_Masked()
 {
     delete gROOT->FindObject("Radiance_31");
     TSeqCollection* canvases = gROOT->GetListOfCanvases();
@@ -113,41 +118,64 @@ void Jet_Pattern_Energy_Distribution_Upgrade()
     mytree->SetBranchAddress("ak4pfjets_tagging", &ak4pfjets_tagging);
     //Branch for HGCal 
     
-    Int_t hgcalclst_track;
-    Int_t hgcalclst_layer[kMax];
-    Int_t hgcalclst_size[kMax];
-    Double_t hgcalclst_x[kMax];
-    Double_t hgcalclst_y[kMax];
-    Double_t hgcalclst_z[kMax];
-    Double_t hgcalclst_E[kMax];
-    Double_t hgcalclst_eta[kMax];
-    Double_t hgcalclst_phi[kMax];
+    Int_t LayerCluster_track;
+    Int_t LayerCluster_layer[kMax];
+    Int_t LayerCluster_size[kMax];
+    Double_t LayerCluster_x[kMax];
+    Double_t LayerCluster_y[kMax];
+    Double_t LayerCluster_z[kMax];
+    Double_t LayerCluster_E[kMax];
+    Double_t LayerCluster_eta[kMax];
+    Double_t LayerCluster_phi[kMax];
+    Double_t LayerCluster_mask_EM[kMax];
+    Double_t LayerCluster_mask_HAD[kMax];
+    Double_t LayerCluster_mask_Trk[kMax];
+    Double_t LayerCluster_mask_MIP[kMax];
 
-    mytree->SetBranchAddress("Cluster_track", &hgcalclst_track ) ;
-    mytree->SetBranchAddress("Cluster_E",hgcalclst_E) ;
-    mytree->SetBranchAddress("Cluster_eta",hgcalclst_eta) ;
-    mytree->SetBranchAddress("Cluster_phi",hgcalclst_phi) ;
-    mytree->SetBranchAddress("Cluster_layer",hgcalclst_layer) ;
+    mytree->SetBranchAddress("Cluster_track", &LayerCluster_track ) ;
+    mytree->SetBranchAddress("Cluster_E",LayerCluster_E) ;
+    mytree->SetBranchAddress("Cluster_eta",LayerCluster_eta) ;
+    mytree->SetBranchAddress("Cluster_phi",LayerCluster_phi) ;
+    mytree->SetBranchAddress("Cluster_layer",LayerCluster_layer) ;
+    mytree->SetBranchAddress("Cluster_mask_EM",LayerCluster_mask_EM) ;
+    mytree->SetBranchAddress("Cluster_mask_HAD",LayerCluster_mask_HAD) ;
+    mytree->SetBranchAddress("Cluster_mask_Trk",LayerCluster_mask_Trk) ;
+    mytree->SetBranchAddress("Cluster_mask_MIP",LayerCluster_mask_MIP) ;
     //Branch for Particle
     TBranch *PFConstituents;
     std::vector<Double_t> *PFConstituents_eta;
     std::vector<Double_t> *PFConstituents_phi;
     std::vector<Double_t> *PFConstituents_E;
     std::vector<Int_t> *PFConstituents_charge;
+    std::vector<Int_t> *PFConstituents_pdgID;
     mytree->SetBranchAddress("PFConstituents_eta", &PFConstituents_eta,&PFConstituents);
     mytree->SetBranchAddress("PFConstituents_phi", &PFConstituents_phi,&PFConstituents);
     mytree->SetBranchAddress("PFConstituents_charge", &PFConstituents_charge,&PFConstituents);
     mytree->SetBranchAddress("PFConstituents_E", &PFConstituents_E,&PFConstituents);
-
+    mytree->SetBranchAddress("PFConstituents_pdgId",&PFConstituents_pdgID,&PFConstituents);
     /*Graph*/
     
     Int_t nentries = (Int_t)mytree->GetEntries();
     Double_t Energy_q[hgcallayer_max]={0};
     Double_t Energy_g[hgcallayer_max]={0};
+    Double_t hist_q_width_L=.6;
+    Double_t hist_q_width_R=+1.6;
+    Double_t hist_q_height_D=-2.5;
+    Double_t hist_q_height_T=-1.5;
+    
+    Double_t hist_g_width_L=-.5;
+    Double_t hist_g_width_R=+.5;
+    Double_t hist_g_height_D=-2.6;
+    Double_t hist_g_height_T=-1.6;
+
+    Int_t Resolution_hist_q_w = ( hist_q_width_R- hist_q_width_L)*16; 
+    Int_t Resolution_hist_q_h = ( hist_q_height_T- hist_q_height_D)*16; 
+    Int_t Resolution_hist_g_w = ( hist_g_width_R- hist_g_width_L)*16; 
+    Int_t Resolution_hist_g_h = ( hist_g_height_T- hist_g_height_D)*16; 
     TH2D *Pattern_Quark[hgcallayer_max];
     TH2D *Pattern_Gluon[hgcallayer_max];
-    TH2D *Jet_q = new TH2D("Quark Jet","Jet",16,0.6,1.6,16,-2.4,-1.4);
-    TH2D *Jet_g = new TH2D("Gluon Jet","Jet",16,-.3,0.7,16,-2.6,-1.6);
+    TH2D *Jet_q = new TH2D("Quark Jet","Jet",Resolution_hist_q_w,hist_q_width_L,hist_q_width_R,Resolution_hist_q_h,hist_q_height_D,hist_q_height_T);
+    TH2D *Jet_g = new TH2D("Gluon Jet","Jet",Resolution_hist_g_w,hist_g_width_L,hist_g_width_R,Resolution_hist_g_h,hist_g_height_D,hist_g_height_T);
     char name_q[50],name_g[50],title_q[50],title_g[50];
     sprintf(name_q,"Pattern_Quark");
     sprintf(name_g,"Pattern_Gluon");
@@ -157,8 +185,8 @@ void Jet_Pattern_Energy_Distribution_Upgrade()
         sprintf(name_g,"Pattern_Gluon%d",index);
         sprintf(title_q,"Quark Jet Pattern in Layer%d",index+1);
         sprintf(title_g,"Gluon Jet Pattern in Layer%d",index+1);
-        Pattern_Quark[index]=new TH2D(name_q,title_q,16,0.6,1.6,16,-2.4,-1.4);
-        Pattern_Gluon[index]=new TH2D(name_g,title_g,16,-.3,0.7,16,-2.6,-1.6);
+        Pattern_Quark[index]=new TH2D(name_q,title_q,Resolution_hist_q_w,hist_q_width_L,hist_q_width_R,Resolution_hist_q_h,hist_q_height_D,hist_q_height_T);
+        Pattern_Gluon[index]=new TH2D(name_g,title_g,Resolution_hist_g_w,hist_g_width_L,hist_g_width_R,Resolution_hist_g_h,hist_g_height_D,hist_g_height_T);  
         
         Pattern_Quark[index]->GetYaxis()->SetTitle("#eta");
         Pattern_Quark[index]->GetXaxis()->SetTitle("#phi");
@@ -202,21 +230,29 @@ void Jet_Pattern_Energy_Distribution_Upgrade()
     for( Int_t ev = 0 ; ev < nentries ; ev++)
     {
           mytree->GetEntry(ev);
-          std::vector<Bool_t> hgcalclst_tagger;
-          for(int j = 0 ; j < hgcalclst_track;j++)
+          std::vector<Bool_t> LayerCluster_tagger;
+          for(int j = 0 ; j < LayerCluster_track;j++)
           {
-               hgcalclst_tagger.push_back(false);
+               LayerCluster_tagger.push_back(false);
           }
           for(int i=0; i<genparticle_track  ; i++)
           {
-               if(((TMath::Abs(genparticle_pdgId[i])<4&&TMath::Abs(genparticle_pdgId[i])>0)||genparticle_pdgId[i]==21)&&(genparticle_status[i] == 23))
+               bool quark=false;
+               bool gluon=false;
+               if(genparticle_pdgId[i]==Gluon_ID)
+               {
+                   gluon=true;
+               }
+               else if ((TMath::Abs(genparticle_pdgId[i])<=Quark_upper_ID&&TMath::Abs(genparticle_pdgId[i])>=Quark_lower_ID))
+               {
+                   quark=true; 
+               }
+               if((gluon||quark)&&genparticle_status[i] == 23)
                {
                    Double_t dR[ak4pfjets_track];
                    Double_t minimum_DeltaR=0;
                    int min_pos =0;
                    bool flag = false ;
-                   bool quark=false;
-                   bool gluon=false;
                    for(Int_t j = 0; j < ak4pfjets_track ; j ++)
                    {
                        dR[j] = TMath::Sqrt(TMath::Power((ak4pfjets_eta[j] - genparticle_eta[i]),2) + TMath::Power((ak4pfjets_phi[j] - genparticle_phi[i]), 2 ) );
@@ -225,21 +261,23 @@ void Jet_Pattern_Energy_Distribution_Upgrade()
                    Find_min( dR, ak4pfjets_track , 0 , minimum_DeltaR , min_pos , flag );
                    if( minimum_DeltaR < 0.1 && TMath::Abs(ak4pfjets_eta[min_pos]) < hgcal_upper_eta \
                            && TMath::Abs( ak4pfjets_eta[min_pos])>hgcal_lower_eta  \
-                           && ak4pfjets_pt[min_pos]>genparticle_pt[i]*constraint_coef_pt)
+                           && ak4pfjets_pt[min_pos]>genparticle_pt[i]*constraint_coef_pt\
+                           )
                    {
-                       if(genparticle_pdgId[i]==21)
+                       //Genparticle is Gluon or Quark
+                       //Random choose one quark jet or gluon jet from events
+                       if(gluon)
                        {
-                           gluon=true;
                            ctr_gluon++;
+                           printf("\nctr_gluon: %d\n",ctr_gluon);
                        }
-                       if((TMath::Abs(genparticle_pdgId[i])<4&&TMath::Abs(genparticle_pdgId[i])>0))
+                       else if(quark)
                        {
-                           quark=true;
                            ctr_quark++;
                        }
-                       if((ctr_quark==selected_q&&quark_one)||(ctr_gluon=selected_g&&gluon_one))
+                       if(((ctr_quark==selected_q)&&(quark_one))||((ctr_gluon==selected_g)&&(gluon_one)))
                        {
-                           Int_t mindex;
+                           Int_t particle_index;
                            if(gluon)
                            {
                                Jet_g->Fill(ak4pfjets_phi[min_pos],ak4pfjets_eta[min_pos]);
@@ -249,63 +287,98 @@ void Jet_Pattern_Energy_Distribution_Upgrade()
                            {
                                Jet_q->Fill(ak4pfjets_phi[min_pos],ak4pfjets_eta[min_pos]);
                                quark_one=false;
+                               printf("\nctr_quark: %d\n",ctr_quark);
                            }
                            if(min_pos >0 )
                            {
-                               mindex = ak4pfjets_tagging->at(min_pos-1);
+                               particle_index = ak4pfjets_tagging->at(min_pos-1);
                            }
                            else
                            {
-                               mindex=0;
+                               particle_index=0;
                            }
-                           Int_t mindex_end = ak4pfjets_tagging->at(min_pos);
-                           for(;mindex < mindex_end;mindex++)
+                           Int_t particle_index_end = ak4pfjets_tagging->at(min_pos);
+                       //Loop for particles 
+                           for(;particle_index < particle_index_end;particle_index++)
                            {
-                               for(Int_t k = 0 ; k < hgcalclst_track; k++ )
+                               for(Int_t k = 0 ; k < LayerCluster_track; k++ )
                                {
                                    Double_t dR_=500;
                                    int min_index=-1;
                                    double deltaR=0;
                                    for(int layer=0;layer<hgcallayer_max;layer++)
                                    {
-                                       if(layer+1==hgcalclst_layer[k])
-                                       {
-                                           deltaR = TMath::Power(PFConstituents_eta->at(mindex)-hgcalclst_eta[k],2)+TMath::Power(PFConstituents_phi->at(mindex)-hgcalclst_phi[k],2);
-                                           deltaR = TMath::Sqrt(deltaR);
-                                           if(deltaR < dR_ && deltaR < part_dR_cut)
+                                       if(layer+1==LayerCluster_layer[k])
+                                       { 
+                                           //electron 
+                                           bool electron=false;
+                                           bool photon=false;
+                                           bool charged_Had=false;
+                                           bool neutral_Had=false;
+                                           if(LayerCluster_mask_EM[k]==0 && LayerCluster_mask_Trk[k]==0 && LayerCluster_mask_HAD[k]!=0\
+                                                   &&TMath::Abs(PFConstituents_pdgID->at(particle_index)) == 11)
                                            {
-                                               if(min_index>-1)
-                                                   hgcalclst_tagger.at(min_index)=false;
-                                               hgcalclst_tagger.at(k)=true;
-                                               dR_=deltaR;
-                                               min_index=k;
+                                               electron=true;
                                            }
+                                           else if(LayerCluster_mask_EM[k]==0 && LayerCluster_mask_Trk[k]!=0 && LayerCluster_mask_HAD[k]!=0\
+                                                   &&TMath::Abs(PFConstituents_pdgID->at(particle_index)) == 22)
+                                           {
+                                               photon=true;
+                                           }
+                                           else if(LayerCluster_mask_EM[k]==0 && LayerCluster_mask_Trk[k]==0 && LayerCluster_mask_HAD[k]==0\
+                                                   && PFConstituents_charge != 0
+                                                   )
+                                           {
+                                               charged_Had=true;
+                                           }
+                                           else if(LayerCluster_mask_EM[k]>0 && LayerCluster_mask_Trk[k]!=0 && LayerCluster_mask_HAD[k]==0\
+                                                   && PFConstituents_charge == 0)
+                                           {
+                                               neutral_Had=true;
+                                           }
+                                           //Cleaning LayerCluster!
+                                           if(electron || photon || charged_Had || neutral_Had)
+                                           {
+                                               deltaR = TMath::Power(PFConstituents_eta->at(particle_index)-LayerCluster_eta[k],2)\
+                                                        +TMath::Power(PFConstituents_phi->at(particle_index)-LayerCluster_phi[k],2);
+                                               deltaR = TMath::Sqrt(deltaR);
+                                               if(deltaR < dR_ && deltaR < part_dR_cut)
+                                               {
+                                                   if(min_index>-1)
+                                                       LayerCluster_tagger.at(min_index)=false;
+                                                   LayerCluster_tagger.at(k)=true;
+                                                   dR_=deltaR;
+                                                   min_index=k;
+                                               }
+                                           }
+
                                        }
                                    }
                                }
 
                            }
+                           //Find out the total energy for each layer and the corresponding pattern in each layer
                            for(int layer=0;layer<hgcallayer_max;layer++)
                            {
-                               for(int  k = 0 ; k < hgcalclst_track ; k++)
+                               for(int  k = 0 ; k < LayerCluster_track ; k++)
                                {
-                                   if(hgcalclst_layer[k]==layer+1 && hgcalclst_tagger.at(k))
+                                   if(LayerCluster_layer[k]==layer+1 && LayerCluster_tagger.at(k))
                                    {
                                        if(quark)
                                        {
-                                           Energy_q[layer] += hgcalclst_E[k];
-                                           Pattern_Quark[layer]->Fill(hgcalclst_phi[k],hgcalclst_eta[k]);
-                                           Int_t bin = Pattern_Quark[layer]->FindBin(hgcalclst_phi[k],hgcalclst_eta[k]);
-                                           Pattern_Quark[layer]->SetBinContent(bin,hgcalclst_E[k]);
+                                           Energy_q[layer] += LayerCluster_E[k];
+                                           Pattern_Quark[layer]->Fill(LayerCluster_phi[k],LayerCluster_eta[k]);
+                                           Int_t bin = Pattern_Quark[layer]->FindBin(LayerCluster_phi[k],LayerCluster_eta[k]);
+                                           Pattern_Quark[layer]->SetBinContent(bin,LayerCluster_E[k]);
                                        }
                                        else if(gluon)
                                        {
-                                           Energy_g[layer] += hgcalclst_E[k];
-                                           Pattern_Gluon[layer]->Fill(hgcalclst_phi[k],hgcalclst_eta[k]);
-                                           Int_t bin = Pattern_Gluon[layer]->FindBin(hgcalclst_phi[k],hgcalclst_eta[k]);
-                                           Pattern_Gluon[layer]->SetBinContent(bin,hgcalclst_E[k]);
+                                           Energy_g[layer] += LayerCluster_E[k];
+                                           Pattern_Gluon[layer]->Fill(LayerCluster_phi[k],LayerCluster_eta[k]);
+                                           Int_t bin = Pattern_Gluon[layer]->FindBin(LayerCluster_phi[k],LayerCluster_eta[k]);
+                                           Pattern_Gluon[layer]->SetBinContent(bin,LayerCluster_E[k]);
                                        }
-                                       hgcalclst_tagger.at(k)=false;
+                                       LayerCluster_tagger.at(k)=false;
                                    }
                                }
                            }
@@ -381,9 +454,6 @@ void Jet_Pattern_Energy_Distribution_Upgrade()
         c1->Clear();
         c2->Clear();
     }
-
-
-
     c1->Close();
     c2->Close();
 }
