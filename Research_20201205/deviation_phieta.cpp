@@ -355,51 +355,54 @@ void deviation_phieta()
                        }
                        Int_t particle_index_end = ak4pfjets_tagging->at(min_pos);
                    //Loop for particles 
-                       for(Int_t k = 0 ; k < LayerCluster_track; k++ )
+                       for(;particle_index<particle_index_end;particle_index++)
                        {
-                           Double_t dR_=500;
-                           int min_index=-1;
-                           double deltaR=0;
-                           for(int layer=0;layer<hgcallayer_max;layer++)
+                           for(Int_t k = 0 ; k < LayerCluster_track; k++ )
                            {
-                               if(layer+1==LayerCluster_layer[k])
-                               { 
-                                   bool electron=false;
-                                   bool photon=false;
-                                   bool charged_Had=false;
-                                   bool neutral_Had=false;
-                                   if(LayerCluster_mask_EM[k]==0 && LayerCluster_mask_Trk[k]==0 && LayerCluster_mask_HAD[k]!=0\
-                                           &&TMath::Abs(PFConstituents_pdgID->at(particle_index)) == 11)
-                                   {
-                                       electron=true;
-                                   }
-                                   else if(LayerCluster_mask_EM[k]==0 && LayerCluster_mask_Trk[k]!=0 && LayerCluster_mask_HAD[k]!=0\
-                                           &&TMath::Abs(PFConstituents_pdgID->at(particle_index)) == 22)
-                                   {
-                                       photon=true;
-                                   }
-                                   else if(LayerCluster_mask_EM[k]==0 && LayerCluster_mask_Trk[k]==0 && LayerCluster_mask_HAD[k]==0\
-                                           && PFConstituents_charge != 0
-                                           )
-                                   {
-                                       charged_Had=true;
-                                   }
-                                   else if(LayerCluster_mask_EM[k]>0 && LayerCluster_mask_Trk[k]!=0 && LayerCluster_mask_HAD[k]==0\
-                                           && PFConstituents_charge == 0)
-                                   {
-                                       neutral_Had=true;
-                                   }
-                                   if(electron || photon || charged_Had || neutral_Had)
-                                   {
-                                       deltaR = TMath::Power(ak4pfjets_eta[min_pos]-LayerCluster_eta[k],2)\
-                                                +TMath::Power(ak4pfjets_phi[min_pos]-LayerCluster_phi[k],2);
-                                       deltaR = TMath::Sqrt(deltaR);
-                                       if(deltaR < 0.8)
+                               Double_t dR_=500;
+                               int min_index=-1;
+                               double deltaR=0;
+                               for(int layer=0;layer<hgcallayer_max;layer++)
+                               {
+                                   if(layer+1==LayerCluster_layer[k])
+                                   { 
+                                       bool electron=false;
+                                       bool photon=false;
+                                       bool charged_Had=false;
+                                       bool neutral_Had=false;
+                                       if(LayerCluster_mask_EM[k]==0 && LayerCluster_mask_Trk[k]==0 && LayerCluster_mask_HAD[k]!=0\
+                                               &&TMath::Abs(PFConstituents_pdgID->at(particle_index)) == 11)
                                        {
-                                           LayerCluster_tagger.at(k)=true;
+                                           electron=true;
                                        }
-                                   }
+                                       else if(LayerCluster_mask_EM[k]==0 && LayerCluster_mask_Trk[k]!=0 && LayerCluster_mask_HAD[k]!=0\
+                                               &&TMath::Abs(PFConstituents_pdgID->at(particle_index)) == 22)
+                                       {
+                                           photon=true;
+                                       }
+                                       else if(LayerCluster_mask_EM[k]==0 && LayerCluster_mask_Trk[k]==0 && LayerCluster_mask_HAD[k]==0\
+                                               && PFConstituents_charge != 0
+                                               )
+                                       {
+                                           charged_Had=true;
+                                       }
+                                       else if(LayerCluster_mask_EM[k]>0 && LayerCluster_mask_Trk[k]!=0 && LayerCluster_mask_HAD[k]==0\
+                                               && PFConstituents_charge == 0)
+                                       {
+                                           neutral_Had=true;
+                                       }
+                                       if(electron || photon || charged_Had || neutral_Had)
+                                       {
+                                           deltaR = TMath::Power(ak4pfjets_eta[min_pos]-LayerCluster_eta[k],2)\
+                                                    +TMath::Power(ak4pfjets_phi[min_pos]-LayerCluster_phi[k],2);
+                                           deltaR = TMath::Sqrt(deltaR);
+                                           if(deltaR < 0.8)
+                                           {
+                                               LayerCluster_tagger.at(k)=true;
+                                           }
+                                       }
 
+                                   }
                                }
                            }
                        }
